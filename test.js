@@ -12,3 +12,17 @@ const numPrices = orderPrices.map((a) => +a.replace('원', ''));
 const total = numPrices.reduce((p, c) => p + c);
 
 console.log(total)
+
+const numString = ["1", "2", "3"]
+
+const oldArray = [...order]
+
+const names = numString.forEach((a, i) => {
+
+    if (oldArray[i]) {
+        return oldArray[i].name = a
+    }
+});
+
+console.log(oldArray)
+

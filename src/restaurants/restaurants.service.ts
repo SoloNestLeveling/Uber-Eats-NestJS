@@ -39,7 +39,7 @@ export class RestaurantsService {
             where: {
                 id,
             },
-            relations: ['menus']
+            relations: ['menus', 'orders']
         });
 
         return restaurant;

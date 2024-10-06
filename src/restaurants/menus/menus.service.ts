@@ -65,4 +65,20 @@ export class MenusService {
             handleMenus,
         )
     };
+
+
+    async getMenuByResId(menuId: number, resId: number) {
+
+        const menu = await this.menusRepository.findOne({
+            where: {
+                id: menuId,
+                restaurant: {
+                    id: resId
+                }
+            },
+            relations: ['restaurant']
+        });
+
+        return menu
+    }
 };

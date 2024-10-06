@@ -51,7 +51,7 @@ export class UsersService {
             where: {
                 id,
             },
-            relations: ['profile', 'profile.image', 'restaurant', 'restaurant.menus']
+            relations: ['profile', 'profile.image', 'restaurant', 'restaurant.menus', 'wishlist']
         });
 
         return user;

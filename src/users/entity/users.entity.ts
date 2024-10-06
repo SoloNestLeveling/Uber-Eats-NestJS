@@ -55,7 +55,8 @@ export class UsersModel extends BaseModel {
     orders: OrdersModel[];
 
 
-    @OneToMany(() => WishlistModel, (list) => list.user)
-    wishlist: WishlistModel[];
+    @OneToOne(() => WishlistModel, (list) => list.user)
+    @JoinColumn()
+    wishlist: WishlistModel;
 
 };
