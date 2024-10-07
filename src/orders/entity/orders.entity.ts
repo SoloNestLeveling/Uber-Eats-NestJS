@@ -9,11 +9,12 @@ interface IOrderMenus {
     price: string,
 };
 
-enum ProgressStatusTypeEnum {
+export enum ProgressStatusTypeEnum {
 
     PENDING = "pending",
     COOKING = 'cooking',
-    DELIVERING = 'delivering'
+    DELIVERING = 'delivering',
+    COMPLETE = 'complete'
 };
 
 
