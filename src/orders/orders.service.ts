@@ -115,18 +115,16 @@ export class OrdersService {
         const restaurant = owner.restaurant;
 
 
-        const order = restaurant.orders.filter((a) => a.id === dto.orderId);
+        const order = restaurant.orders.find((o) => o.id === dto.orderId);
 
-        order.forEach((a) => {
-            switch (a.status) {
-                case ProgressStatusTypeEnum.COOKING:
-                    a.status = ProgressStatusTypeEnum.DELIVERING;
-                    break;
+        switch (order.status) {
+            case ProgressStatusTypeEnum.COOKING:
+                order.status = ProgressStatusTypeEnum.DELIVERING;
+                break;
 
-                default:
-                    throw new BadRequestException(`현재 주문의 상태는 ${a.status}입니다.`)
-            }
-        });
+            default:
+                throw new BadRequestException(`현재 주문의 상태는 ${order.status}입니다.`)
+        };
 
 
         return this.ordersRepository.save(order);
@@ -147,53 +145,39 @@ export class OrdersService {
         const restaurant = owner.restaurant;
 
 
-        const order = restaurant.orders.filter((a) => a.id === dto.orderId);
-        const orderId = order.map((a) => a.id)[0]
-        const userId = order.map((a) => a.user.id)[0]
+        const order = restaurant.orders.find((a) => a.id === dto.orderId);
+
+        const user = await this.usersService.getUserById(order.user.id)
 
 
-        const user = await this.usersService.getUserById(userId)
+        switch (order.status) {
+            case ProgressStatusTypeEnum.DELIVERING:
+                order.status = ProgressStatusTypeEnum.COMPLETE;
+                break;
 
-        order.forEach((a) => {
-            switch (a.status) {
-                case ProgressStatusTypeEnum.DELIVERING:
-                    a.status = ProgressStatusTypeEnum.COMPLETE;
-                    break;
-
-                default:
-                    throw new BadRequestException(`현재 주문의 상태는 ${a.status}입니다.`)
-            }
-        });
+            default:
+                throw new BadRequestException(`현재 주문의 상태는 ${order.status}입니다.`)
+        }
 
 
-        const newOrderArray = owner.orders.filter((a) => a.id !== orderId);
-        const newUserOrder = user.orders.filter((a) => a.id !== orderId);
+        owner.orders = owner.orders.filter((o) => o.id !== order.id)
+        user.orders = user.orders.filter((o) => o.id !== order.user.id);
+
+        const totalOrderPrice = await this.totalOrderPrice(order.id)
+
+        const newOrderHistory = {
+            menus: order.menus,
+            totalPrice: `${totalOrderPrice}원`
+        };
 
 
-        const menus = order.flatMap((a) => a.menus);
-        const prices = menus.map((a) => a.price);
-        const numPrice = prices.map((a) => +a.replace('원', ''));
-        const orderTotalPrice = numPrice.reduce((p, c) => p + c);
-
-        const newOrderHistory = order.map((a) => ({
-            menus: a.menus,
-            totalPrice: `${orderTotalPrice}원`
-        }))
+        owner.orderHistory = [...owner.orderHistory, newOrderHistory];
 
 
-        owner.orderHistory = [...owner.orderHistory, ...newOrderHistory];
-        owner.orders = newOrderArray;
-
-        user.orderHistory = [...user.orderHistory, ...newOrderHistory];
-        user.orders = newUserOrder;
+        user.orderHistory = [...user.orderHistory, newOrderHistory];
 
 
-
-
-
-
-
-        owner.todayTotal = owner.todayTotal + orderTotalPrice
+        owner.todayTotal += totalOrderPrice;
 
         await this.usersRepository.save(owner);
         await this.usersRepository.save(user)
@@ -201,4 +185,26 @@ export class OrdersService {
 
         return this.ordersRepository.save(order);
     };
+
+
+
+
+    async totalOrderPrice(orderId: number) {
+
+        const order = await this.getOrderById(orderId);
+
+        const menus = order.menus;
+        const prices = menus.map((a) => a.price);
+
+        const numPrices = prices.map((a) => +a.replace('원', ''));
+
+        const totalPrice = numPrices.reduce((p, c) => p + c);
+
+        return totalPrice;
+    };
+
+
+    async addOrderHistory() {
+
+    }
 };

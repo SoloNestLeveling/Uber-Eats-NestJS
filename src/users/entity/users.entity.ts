@@ -65,6 +65,7 @@ export class UsersModel extends BaseModel {
     @Column({ default: 0 })
     @Transform(({ obj, value }) => obj.role === RoleTypeEnum.OWNER ? value : undefined)
     @IsString()
+    @Expose()
     todayTotal: number;
 
 
