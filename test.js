@@ -25,4 +25,3 @@ const names = numString.forEach((a, i) => {
 });
 
 console.log(oldArray)
-

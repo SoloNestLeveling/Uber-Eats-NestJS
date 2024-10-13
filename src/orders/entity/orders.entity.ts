@@ -1,13 +1,15 @@
+import { Transform } from "class-transformer";
 import { IsEnum, IsOptional, IsString } from "class-validator";
 import { BaseModel } from "src/common/base/entity.base";
 import { RestaurantsModel } from "src/restaurants/entity/restaurants.entity";
-import { UsersModel } from "src/users/entity/users.entity";
+import { RoleTypeEnum, UsersModel } from "src/users/entity/users.entity";
 import { Column, Entity, ManyToOne } from "typeorm";
 
-interface IOrderMenus {
+export interface IOrderMenus {
     name: string,
     price: string,
 };
+
 
 export enum ProgressStatusTypeEnum {
 

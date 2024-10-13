@@ -2,17 +2,18 @@ import { Body, Controller, Get, Param, ParseIntPipe, Post } from '@nestjs/common
 import { OrdersService } from './orders.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { User } from 'src/users/decorator/user.decorator';
-import { UsersModel } from 'src/users/entity/users.entity';
+import { RoleTypeEnum, UsersModel } from 'src/users/entity/users.entity';
 import { IsPublic } from 'src/common/decorator/public.decorator';
 import { PublicTypeEnum } from 'src/common/enum/public.enum';
 import { UserOrderDto } from './dto/allow-order.dto';
+import { Role } from 'src/users/decorator/role.decorator';
 
 @Controller('orders')
 export class OrdersController {
   constructor(private readonly ordersService: OrdersService) { }
 
 
-  @Post(':id')
+  @Post('create/:id')
   createOrder(
     @Param('id', ParseIntPipe) restaurantId: number,
     @Body() dto: CreateOrderDto,
@@ -30,34 +31,35 @@ export class OrdersController {
     return this.ordersService.getOrderById(restaurantId)
   }
 
-  @Post('allow/:id')
-  @IsPublic(PublicTypeEnum.PUBLIC)
+  @Post('allow')
+  @Role(RoleTypeEnum.OWNER)
   allowOrder(
-    @Param('id', ParseIntPipe) restaurantId: number,
+    @User() owner: UsersModel,
     @Body() dto: UserOrderDto
   ) {
-    return this.ordersService.allowOrder(dto, restaurantId);
+    console.log('Received DTO:', dto);
+    return this.ordersService.allowOrder(dto, owner.id);
   };
 
 
-  @Post('deliver/:id')
-  @IsPublic(PublicTypeEnum.PUBLIC)
+  @Post('deliver')
+  @Role(RoleTypeEnum.OWNER)
   deliverOrder(
-    @Param('id', ParseIntPipe) restaurantId: number,
+    @User() owner: UsersModel,
     @Body() dto: UserOrderDto
   ) {
-    return this.ordersService.deliverOrder(dto, restaurantId);
+    return this.ordersService.deliverOrder(dto, owner.id);
   };
 
 
 
-  @Post('complete/:id')
-  @IsPublic(PublicTypeEnum.PUBLIC)
+  @Post('complete')
+  @Role(RoleTypeEnum.OWNER)
   completeOrder(
-    @Param('id', ParseIntPipe) restaurantId: number,
+    @User() owner: UsersModel,
     @Body() dto: UserOrderDto
   ) {
-    return this.ordersService.completeOrder(dto, restaurantId);
+    return this.ordersService.completeOrder(dto, owner.id);
   }
 
 

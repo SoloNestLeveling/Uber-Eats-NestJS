@@ -16,8 +16,8 @@ export class RoleGuard implements CanActivate {
         const Role = await this.reflector.getAllAndOverride(
             ROLE_KEY,
             [
-                context.getClass,
-                context.getHandler
+                context.getClass(),
+                context.getHandler()
             ]
         );
 
@@ -30,13 +30,9 @@ export class RoleGuard implements CanActivate {
         const { user } = context.switchToHttp().getRequest();
 
 
-        if (user.role === RoleTypeEnum.USER) {
-            throw new ForbiddenException("사용 권한이 없습니다.")
-        }
-
 
         if (Role === RoleTypeEnum.ADMIN) {
-            if (user.role === RoleTypeEnum.OWNER) {
+            if (user.role === RoleTypeEnum.OWNER || user.role === RoleTypeEnum.USER) {
                 throw new ForbiddenException("관리자만 사용 가능합니다.")
             } else {
                 return true
@@ -46,7 +42,7 @@ export class RoleGuard implements CanActivate {
 
 
         if (Role === RoleTypeEnum.OWNER) {
-            if (user.role === RoleTypeEnum.ADMIN) {
+            if (user.role === RoleTypeEnum.ADMIN || user.role === RoleTypeEnum.USER) {
                 throw new ForbiddenException("owner만 사용 가능한 탭입니다.")
             } else {
                 return true

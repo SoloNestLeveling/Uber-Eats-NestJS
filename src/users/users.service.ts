@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { UsersModel } from './entity/users.entity';
+import { RoleTypeEnum, UsersModel } from './entity/users.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 
 @Injectable()
@@ -51,11 +51,18 @@ export class UsersService {
             where: {
                 id,
             },
-            relations: ['profile', 'profile.image', 'restaurant', 'restaurant.menus', 'wishlist', 'orders']
+            relations: [
+                'profile',
+                'profile.image',
+                'restaurant',
+                'restaurant.menus',
+                'wishlist',
+                'orders',]
         });
 
         return user;
     };
+
 
 
 
@@ -69,4 +76,32 @@ export class UsersService {
 
         return user;
     };
+
+
+
+    async getOwnerById(id: number) {
+
+        const user = await this.usersRespository.findOne({
+            where: {
+                role: RoleTypeEnum.OWNER,
+                id,
+            },
+            relations: ['restaurant', 'restaurant.orders', 'restaurant.orders.user', 'orders', 'wishlist']
+
+        });
+
+        return user;
+    };
+
+
+    async deletHistory(id: number) {
+
+        const user = await this.getUserById(id);
+
+        user.orderHistory = [];
+
+        await this.usersRespository.save(user);
+
+        return user;
+    }
 }

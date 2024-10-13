@@ -1,4 +1,4 @@
-import { Controller, Get, Param, ParseIntPipe } from '@nestjs/common';
+import { Controller, Get, Param, ParseIntPipe, Post } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { IsPublic } from 'src/common/decorator/public.decorator';
 import { PublicTypeEnum } from 'src/common/enum/public.enum';
@@ -14,5 +14,14 @@ export class UsersController {
     @Param('id', ParseIntPipe) id: number
   ) {
     return this.usersService.getUserById(id)
-  }
+  };
+
+
+  @Post('history/:id')
+  @IsPublic(PublicTypeEnum.PUBLIC)
+  deleteHistory(
+    @Param('id', ParseIntPipe) id: number
+  ) {
+    return this.usersService.deletHistory(id)
+  };
 }
